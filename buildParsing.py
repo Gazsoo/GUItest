@@ -1,30 +1,27 @@
-# build_parsing
-from html.parser import HTMLParser
-#from html.entities import name2codepoint
-import time
+""""Parsing the BUILD XML file"""
 
+temp_path = "C/:"
+
+# build_parsing
+import xml.etree.ElementTree as ET
+import time
 t = time.process_time()
 
-class MyHTMLParser(HTMLParser):
+class XMLDataObject():
+    project_name = ""
+    build_dir = ""
+    work_dir = ""
 
-    def handle_starttag(self, tag, attrs):
-
-        for attr in attrs:
-            if tag == "project" and attr[0] == "name" :
-                print(attr[1])
-                break
 
 
 def parse_data ():
+    tree = ET.parse('./test_files/build.xml')
+    root = tree.getroot()
+    print("it : ", root.tag)
+    print(root.attrib)
 
-    parser = MyHTMLParser()
-
-    with open('./test_files/build.xml') as fileXML:
-        feed_file_content = fileXML.read()
-
-        parser.feed(feed_file_content)
-
-    print("ok")
+    for child in root:
+        print(child.tag, child.attrib)
 
 parse_data()
 
