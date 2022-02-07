@@ -4,68 +4,97 @@ temp_path = "C/:"
 
 # build_parsing
 import os
+import re
 import xml.etree.ElementTree as ET
 import time
+#import pprint
 t = time.process_time()
 
 # os.system("ping google.com")
 
 class XMLDataObject():
-    project_name = ""
-    build_dir = ""
-    work_dir = ""
+    my_data = {}
 
-    def __init__(self,hello) -> None:
-        self.build_dir = hello["build.dir"]
+    def __init__(self,xml_root) -> None:
+        self.my_data["basedir"] = "."                   ### TODO
+        self.my_data["ant.project.name"] = "Test00"     ### TODO
+        self.my_data.update(self.property_fill(xml_root, "property"))
+        #self.my_data = self.property_fill(xml_root, "project")
 
+    # GETing the values of the named objects in the xml_root dict
+    def property_fill(self, xml_root, tag_string):
+        dict_to_add = {}
+        found_property = (xml_root.findall(tag_string))
 
-def parse_data ():
+        for items in found_property:
+            try: 
+                first_value_name = items.attrib["name"]
+            except:
+                first_value = ""
+                print("An exception occurred at: name, ", items.attrib) 
+            try: 
+                first_value = items.attrib["location"]
+            except:
+                try: 
+                    first_value = items.attrib["value"]
+                except:
+                    first_value = ""
+                    print("An exception occurred at: value, ", items.attrib) 
+
+            dict_to_add[first_value_name] = first_value
+        return dict_to_add
+
+# Make path for directories
+def make_path(XML_data):
+    mycwd = os.getcwd()
+    path = os.path.join(mycwd,XML_data)
+    if os.path.exists :
+        raise RuntimeError('Directory already exists')
+    else:
+        try:
+            os.makedirs(path)
+        except OSError:
+            print ("Creation of the directory %s failed" % path)
+        else:
+            print ("Successfully created the directory %s " % path)
+
+def my_parse ():
     tree = ET.parse('./test_files/build.xml')
     root = tree.getroot()
 
-    my_data = {}
-    #print(tree)
-    hello = (root.findall("property"))
-    for items in hello:
-        try: 
-            first_value_name = items.attrib["name"]
-        except:
-            first_value = 0
-            print("An exception occurred at: name, ", items.attrib) 
-        try: 
-            first_value = items.attrib["location"]
-        except:
-            try: 
-                first_value = items.attrib["value"]
-            except:
-                first_value = 0
-                print("An exception occurred at: value, ", items.attrib) 
+    # my_data = property_fill(root, "property")
 
-        my_data[first_value_name] = first_value
+    test_XML = XMLDataObject(root)
+    print (test_XML.my_data["build.dir"])
 
-    Initinit = XMLDataObject(my_data)
-    
-    
-    print(Initinit.build_dir)
-    for valami in my_data:
-        print(valami," ------> ", my_data[valami])
+    # select the ${...} regex
+    replace_all_re = '\$\{.*?\}'
+    # select the ... (content) regex
+    replace_selection_re = "\$\{(.*?)\}"
 
-    #print (hello[0].text)
-    # for h in hello:
-    #     print (h.text)
+    compiled_replace_all_re         = re.compile(replace_all_re)
+    compiled_replace_selection_re   = re.compile(replace_selection_re)
 
-    #print (hello)
-    # print(root.attrib)
-    # for child in root:
-    #     print (root.Element)
-    # print (child)
+    # Try to replace the regexed values 
+    for i_dict in test_XML.my_data:
+        replace_dict = compiled_replace_selection_re.findall(test_XML.my_data[i_dict])
+        
+        for x in  replace_dict:
+            try:
+                test_XML.my_data[i_dict] = compiled_replace_all_re.sub(test_XML.my_data[x], \
+                test_XML.my_data[i_dict])
+            except: 
+                print ("Warning: ", x, " is not defined")
 
-    # for x in root:
-    #     #if x.tag == "project":
-    #     print(x.tag, x.attrib)
+    print(test_XML.my_data["build.dir"])
 
+    for valami in test_XML.my_data:
+        print(valami," ------> ", test_XML.my_data[valami])
 
-parse_data()
+    # Make direktories
+    make_path(test_XML.my_data["bin"])
+
+my_parse()
 
 print("Runtime:")
 #do some stuff
