@@ -1,0 +1,1441 @@
+{
+    "project": {
+        "@name": "Test00",
+        "@default": "help",
+        "@basedir": ".",
+        "description": "${ant.project.name} Compiler",
+        "taskdef": [
+            {
+                "@resource": "net/sf/antcontrib/antcontrib.properties"
+            },
+            {
+                "@name": "for",
+                "@classname": "net.sf.antcontrib.logic.ForTask"
+            }
+        ],
+        "property": [
+            {
+                "@name": "build.dir",
+                "@location": "../${ant.project.name}.build"
+            },
+            {
+                "@name": "work.dir",
+                "@location": "${build.dir}/_build"
+            },
+            {
+                "@name": "gdllib_comp",
+                "@location": "${work.dir}/gdlib_comp"
+            },
+            {
+                "@name": "gdllib_loc",
+                "@location": "${work.dir}/gdlib_loc"
+            },
+            {
+                "@name": "gdllib_gsm",
+                "@location": "${work.dir}/gdlib_gsm"
+            },
+            {
+                "@name": "buildate",
+                "@location": "${work.dir}/buildDate.xml"
+            },
+            {
+                "@name": "svnFolder",
+                "@location": "."
+            },
+            {
+                "@name": "installerFolder",
+                "@location": "installer/win/contents/files"
+            },
+            {
+                "@name": "pofiles",
+                "@location": "${build.dir}/po"
+            },
+            {
+                "@name": "gdl_base_lang",
+                "@value": "int"
+            },
+            {
+                "@name": "gdl_base_codepage",
+                "@value": "UTF8"
+            },
+            {
+                "@name": "library-name",
+                "@value": "${ant.project.name}"
+            },
+            {
+                "@name": "gdl_additionallib",
+                "@location": "${basedir}/additional_library"
+            },
+            {
+                "@name": "gdl_base",
+                "@location": "${basedir}/gdl"
+            },
+            {
+                "@name": "gdl_dir",
+                "@location": "${basedir}/gdl/library"
+            },
+            {
+                "@name": "gdl_imgdir",
+                "@location": "${basedir}/gdl/library_images"
+            },
+            {
+                "@name": "gdl_strings",
+                "@location": "${basedir}/gdl/library_strings"
+            },
+            {
+                "@name": "gdl_dep",
+                "@location": "${basedir}/gdl/library_dependency"
+            },
+            {
+                "@name": "gdl_reversebase",
+                "@location": "../${library-name}.lib"
+            },
+            {
+                "@name": "gdl_reversedir",
+                "@location": "../${library-name}.src"
+            },
+            {
+                "@name": "gdl_reverseimg",
+                "@location": "../${library-name}.img"
+            },
+            {
+                "@name": "gdl_checker",
+                "@location": "../${library-name}.check"
+            },
+            {
+                "@name": "bin",
+                "@location": "${basedir}/bin"
+            },
+            {
+                "@name": "lpxmlconv",
+                "@location": "${bin}/LP_XMLConverter_22/LP_XMLConverter.EXE"
+            },
+            {
+                "@name": "gdlxmltool",
+                "@location": "${bin}/gdlXmlTool.exe"
+            },
+            {
+                "@name": "msgmerge",
+                "@location": "${bin}/gettext-0.18.1/msgmerge.exe"
+            },
+            {
+                "@name": "msgfmt",
+                "@location": "${bin}/gettext-0.18.1/msgfmt.exe"
+            }
+        ],
+        "scriptdef": [
+            {
+                "@name": "get-current-target-name",
+                "@language": "javascript",
+                "attribute": {
+                    "@name": "property"
+                },
+                "#text": "importClass( java.lang.Thread );\n\n\t\tproject.setProperty(\n\t\t\tattributes.get( \"property\" ),\n\t\t\tproject.getThreadTask(\n\t\t\t\tThread.currentThread( ) ).getTask( ).getOwningTarget( ).getName( ) );"
+            },
+            {
+                "@language": "javascript",
+                "@name": "upper",
+                "attribute": [
+                    {
+                        "@name": "string"
+                    },
+                    {
+                        "@name": "to"
+                    }
+                ],
+                "#text": "project.setProperty( attributes.get( \"to\" ),\n\t\t\t\t\t\t\t attributes.get( \"string\" ).toUpperCase() );"
+            },
+            {
+                "@language": "javascript",
+                "@name": "lower",
+                "attribute": [
+                    {
+                        "@name": "string"
+                    },
+                    {
+                        "@name": "to"
+                    }
+                ],
+                "#text": "project.setProperty( attributes.get( \"to\" ),\n\t\t\t\t\t\t\t attributes.get( \"string\" ).toLowerCase() );"
+            },
+            {
+                "@language": "javascript",
+                "@name": "ucfirst",
+                "attribute": [
+                    {
+                        "@name": "string"
+                    },
+                    {
+                        "@name": "to"
+                    }
+                ],
+                "#text": "var the_string = attributes.get( \"string\" );\n\t\tproject.setProperty( attributes.get( \"to\" ),\n\t\t\t\t\tthe_string.substr(0,1).toUpperCase() + the_string.substr(1) );"
+            },
+            {
+                "@language": "javascript",
+                "@name": "capitalize",
+                "attribute": [
+                    {
+                        "@name": "string"
+                    },
+                    {
+                        "@name": "to"
+                    }
+                ],
+                "#text": "var s = new String( attributes.get( \"string\" ) );\n\t\tproject.setProperty( attributes.get( \"to\" ),\n\t\t\t\ts.toLowerCase().replace( /^.|\\s\\S/g,\n\t\t\t\tfunction(a) { return a.toUpperCase(); }) );"
+            }
+        ],
+        "if": {
+            "equals": {
+                "@arg1": "${debug}",
+                "@arg2": "false"
+            },
+            "then": {
+                "macrodef": {
+                    "@name": "compile-gdllib",
+                    "attribute": [
+                        {
+                            "@name": "location.src",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "location.trg",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "codepage",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "lang",
+                            "@default": "NOT SET"
+                        }
+                    ],
+                    "sequential": {
+                        "echo": {
+                            "@message": "Make ${library-name}.${target}-@{lang}.@{codepage}"
+                        },
+                        "exec": {
+                            "@executable": "${lpxmlconv}",
+                            "@failonerror": "yes",
+                            "arg": [
+                                {
+                                    "@line": "makelibrary"
+                                },
+                                {
+                                    "@line": "-l @{codepage}"
+                                },
+                                {
+                                    "@line": "-img ${gdl_imgdir}"
+                                },
+                                {
+                                    "@line": "-password item8ufo"
+                                },
+                                {
+                                    "@line": "@{location.src}"
+                                },
+                                {
+                                    "@line": "@{location.trg}"
+                                },
+                                {
+                                    "@line": "${gdl_additionallib}"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "else": {
+                "macrodef": {
+                    "@name": "compile-gdllib",
+                    "attribute": [
+                        {
+                            "@name": "location.src",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "location.trg",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "codepage",
+                            "@default": "NOT SET"
+                        },
+                        {
+                            "@name": "lang",
+                            "@default": "NOT SET"
+                        }
+                    ],
+                    "sequential": {
+                        "echo": {
+                            "@message": "Make ${library-name}.${target}-@{lang}.@{codepage}"
+                        },
+                        "exec": {
+                            "@executable": "${lpxmlconv}",
+                            "@failonerror": "yes",
+                            "arg": [
+                                {
+                                    "@line": "makelibrary"
+                                },
+                                {
+                                    "@line": "-l @{codepage}"
+                                },
+                                {
+                                    "@line": "-img ${gdl_imgdir}"
+                                },
+                                {
+                                    "@line": "@{location.src}"
+                                },
+                                {
+                                    "@line": "@{location.trg}"
+                                },
+                                {
+                                    "@line": "${gdl_additionallib}"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "macrodef": [
+            {
+                "@name": "localize-gdllib",
+                "attribute": [
+                    {
+                        "@name": "location.src",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "location.trg",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Localize ${library-name}.${target}-@{lang}"
+                    },
+                    "check-loc-skip": {
+                        "@lang": "@{lang}"
+                    },
+                    "if": {
+                        "equals": {
+                            "@arg1": "${gdl_base_lang}",
+                            "@arg2": "@{lang}"
+                        },
+                        "then": {
+                            "echo": {
+                                "@message": "Replace ${library-name}.${target}-@{lang}"
+                            },
+                            "exec": {
+                                "@executable": "${gdlxmltool}",
+                                "@failonerror": "yes",
+                                "arg": [
+                                    {
+                                        "@line": "-m replace"
+                                    },
+                                    {
+                                        "@line": "-i @{location.src}"
+                                    },
+                                    {
+                                        "@line": "-o @{location.trg}"
+                                    },
+                                    {
+                                        "@line": "${deplocation}"
+                                    },
+                                    {
+                                        "@line": "${depreplacer}"
+                                    },
+                                    {
+                                        "@line": "-r ${buildate}"
+                                    },
+                                    {
+                                        "@line": "${depgdlversion}"
+                                    },
+                                    {
+                                        "@line": "-v"
+                                    },
+                                    {
+                                        "@line": "-n"
+                                    }
+                                ]
+                            }
+                        },
+                        "else": {
+                            "echo": {
+                                "@message": "Translate @{lang}.${target}"
+                            },
+                            "exec": {
+                                "@executable": "${gdlxmltool}",
+                                "@failonerror": "yes",
+                                "arg": [
+                                    {
+                                        "@line": "-m translate"
+                                    },
+                                    {
+                                        "@line": "-i @{location.src}"
+                                    },
+                                    {
+                                        "@line": "-o @{location.trg}"
+                                    },
+                                    {
+                                        "@line": "-p ${gdl_strings}/${library-name}-@{lang}.po"
+                                    },
+                                    {
+                                        "@line": "${depstringloc}"
+                                    },
+                                    {
+                                        "@line": "${depparamloc}"
+                                    },
+                                    {
+                                        "@line": "${depfileloc}"
+                                    },
+                                    {
+                                        "@line": "${deplocation}"
+                                    },
+                                    {
+                                        "@line": "${depreplacer}"
+                                    },
+                                    {
+                                        "@line": "-r ${buildate}"
+                                    },
+                                    {
+                                        "@line": "${depgdlversion}"
+                                    },
+                                    {
+                                        "@line": "-v"
+                                    },
+                                    {
+                                        "@line": "-n"
+                                    },
+                                    {
+                                        "@line": "-s"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "@name": "compress-gdllib",
+                "attribute": [
+                    {
+                        "@name": "location.src",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "location.trg",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Compress ${library-name}.${target}-@{lang}"
+                    },
+                    "exec": {
+                        "@executable": "${gdlxmltool}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "-m compress"
+                            },
+                            {
+                                "@line": "-i @{location.src}"
+                            },
+                            {
+                                "@line": "-o @{location.trg}"
+                            },
+                            {
+                                "@line": "-t ${gdl_dep}/ScriptComment.txt"
+                            },
+                            {
+                                "@line": "-e"
+                            },
+                            {
+                                "@line": "-c 2"
+                            },
+                            {
+                                "@line": "-n"
+                            },
+                            {
+                                "@line": "-v"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "@name": "check-loc-skip",
+                "attribute": {
+                    "@name": "lang",
+                    "@default": "NOT SET"
+                },
+                "sequential": {
+                    "if": [
+                        {
+                            "available": {
+                                "@file": "${gdl_dep}/version.xml",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depgdlversion",
+                                    "@value": "-r ${gdl_dep}/version.xml"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depgdlversion",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_dep}/date.xml",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depdatereverse",
+                                    "@value": "-r ${gdl_dep}/date.xml"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depdatereverse",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_dep}/dependence_@{lang}.xml",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "deplocation",
+                                    "@value": "-r ${gdl_dep}/dependence_@{lang}.xml"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "deplocation",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_strings}/skip_gdl_string.txt",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depstringloc",
+                                    "@value": "--ignore-strings  ${gdl_strings}/skip_gdl_string.txt"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depstringloc",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_strings}/skip_gdl_param.txt",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depparamloc",
+                                    "@value": "--ignore-param  ${gdl_strings}/skip_gdl_param.txt"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depparamloc",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_strings}/skip_gdl_filename.txt",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depfileloc",
+                                    "@value": "--ignore-filename  ${gdl_strings}/skip_gdl_filename.txt"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depfileloc",
+                                    "@value": ""
+                                }
+                            }
+                        },
+                        {
+                            "available": {
+                                "@file": "${gdl_strings}/replacer-@{lang}.xml",
+                                "@type": "file"
+                            },
+                            "then": {
+                                "var": {
+                                    "@name": "depreplacer",
+                                    "@value": "-r ${gdl_strings}/replacer-@{lang}.xml"
+                                }
+                            },
+                            "else": {
+                                "var": {
+                                    "@name": "depreplacer",
+                                    "@value": ""
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@name": "build-lang",
+                "attribute": [
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "codepage",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "libname",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "fail": {
+                        "@message": "Error: Target not set",
+                        "condition": {
+                            "or": {
+                                "equals": {
+                                    "@arg1": "${target}",
+                                    "@arg2": ""
+                                },
+                                "not": {
+                                    "isset": {
+                                        "@property": "target"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "echo": [
+                        "Cleaning language @{lang}.${target}...",
+                        {
+                            "@message": "Compiling @{lang}.${target}..."
+                        }
+                    ],
+                    "if": [
+                        {
+                            "available": {
+                                "@file": "${work.dir}/${target}/@{lang}",
+                                "@type": "dir"
+                            },
+                            "then": {
+                                "delete": {
+                                    "@dir": "${work.dir}/${target}/@{lang}"
+                                }
+                            }
+                        },
+                        {
+                            "equals": {
+                                "@arg1": "${debug}",
+                                "@arg2": "true"
+                            },
+                            "then": {
+                                "property": {
+                                    "@name": "src",
+                                    "@location": "${gdllib_loc}/library.@{lang}.@{codepage}"
+                                }
+                            },
+                            "else": {
+                                "property": {
+                                    "@name": "src",
+                                    "@location": "${gdllib_comp}/library.@{lang}.@{codepage}"
+                                },
+                                "compress-gdllib": {
+                                    "@location.src": "${gdllib_loc}/library.@{lang}.@{codepage}",
+                                    "@location.trg": "${src}",
+                                    "@lang": "@{lang}"
+                                }
+                            }
+                        },
+                        {
+                            "equals": {
+                                "@arg1": "${debug}",
+                                "@arg2": "false"
+                            },
+                            "then": {
+                                "create-LCF": {
+                                    "@lang": "@{lang}",
+                                    "@codepage": "@{codepage}",
+                                    "@libname": "@{libname}"
+                                }
+                            }
+                        }
+                    ],
+                    "localize-gdllib": {
+                        "@location.src": "${gdl_dir}",
+                        "@location.trg": "${gdllib_loc}/library.@{lang}.@{codepage}",
+                        "@lang": "@{lang}"
+                    },
+                    "var": [
+                        {
+                            "@name": "src",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "dest",
+                            "@unset": "true"
+                        }
+                    ],
+                    "property": {
+                        "@name": "dest",
+                        "@location": "${gdllib_gsm}/library.@{lang}.@{codepage}"
+                    },
+                    "compile-gdllib": {
+                        "@location.src": "${src}",
+                        "@location.trg": "${dest}",
+                        "@codepage": "@{codepage}",
+                        "@lang": "@{lang}"
+                    },
+                    "ziplang": {
+                        "@lang": "@{lang}",
+                        "@codepage": "@{codepage}",
+                        "@libname": "@{libname}"
+                    }
+                }
+            },
+            {
+                "@name": "check-po",
+                "attribute": [
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "location",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Check PO file @{lang}..."
+                    },
+                    "exec": {
+                        "@executable": "${msgfmt}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "--verbose"
+                            },
+                            {
+                                "@line": "-c"
+                            },
+                            {
+                                "@line": "@{location}"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "@name": "update-po",
+                "attribute": {
+                    "@name": "lang",
+                    "@default": "NOT SET"
+                },
+                "sequential": {
+                    "check-loc-skip": {
+                        "@lang": "@{lang}"
+                    },
+                    "echo": {
+                        "@message": "Update PO file ${library-name}-@{lang}..."
+                    },
+                    "var": [
+                        {
+                            "@name": "src.po",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "ref.po",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "src.po",
+                            "@value": "${gdl_strings}/${library-name}-@{lang}.po"
+                        }
+                    ],
+                    "if": {
+                        "available": {
+                            "@file": "${build.dir}/${library-name}-${gdl_base_lang}.po",
+                            "@type": "file"
+                        },
+                        "then": {
+                            "var": {
+                                "@name": "ref.po",
+                                "@value": "${build.dir}/${library-name}-${gdl_base_lang}.po"
+                            }
+                        },
+                        "else": {
+                            "var": {
+                                "@name": "ref.po",
+                                "@value": "${gdl_strings}/${library-name}-${gdl_base_lang}.po"
+                            }
+                        }
+                    },
+                    "upper": {
+                        "@string": "@{lang}",
+                        "@to": "upper"
+                    },
+                    "exec": {
+                        "@executable": "${msgmerge}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "--verbose"
+                            },
+                            {
+                                "@line": "--no-fuzzy-matching"
+                            },
+                            {
+                                "@line": "--previous"
+                            },
+                            {
+                                "@line": "--no-wrap"
+                            },
+                            {
+                                "@line": "--lang=${upper}"
+                            },
+                            {
+                                "@line": "-o ${pofiles}/${library-name}-@{lang}.po"
+                            },
+                            {
+                                "@line": "${src.po}"
+                            },
+                            {
+                                "@line": "${ref.po}"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "@name": "ziplang",
+                "attribute": [
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "codepage",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "libname",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Zipping ${library-name}.${target}-@{lang}..."
+                    },
+                    "delete": {
+                        "@dir": "${build.dir}/${target}/@{lang}"
+                    },
+                    "copy": {
+                        "@todir": "${build.dir}/${target}/@{lang}/@{libname}",
+                        "@overwrite": "true",
+                        "fileset": {
+                            "@dir": "${gdllib_gsm}/library.@{lang}.@{codepage}"
+                        }
+                    },
+                    "zip": {
+                        "@destfile": "${build.dir}/${target}/${library-name}_library_@{lang}.zip",
+                        "@basedir": "${build.dir}/${target}/@{lang}/@{libname}"
+                    }
+                }
+            },
+            {
+                "@name": "create-LCF",
+                "attribute": [
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "codepage",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "libname",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Create LCF file ${library-name}.${target}-@{lang}..."
+                    },
+                    "var": [
+                        {
+                            "@name": "lcf_folder",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_name",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_location",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_folder",
+                            "@value": "${build.dir}/${target}/@{lang}/@{libname}"
+                        },
+                        {
+                            "@name": "lcf_location",
+                            "@value": "${build.dir}/${target}/${lcf_name}.lcf"
+                        }
+                    ],
+                    "propertyregex": {
+                        "@property": "lcf_name",
+                        "@input": "@{libname}",
+                        "@regexp": " ",
+                        "@replace": "_",
+                        "@global": "true",
+                        "@defaultvalue": "@{libname}"
+                    },
+                    "exec": {
+                        "@executable": "${lpxmlconv}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "createcontainer"
+                            },
+                            {
+                                "@line": "'${lcf_location}'"
+                            },
+                            {
+                                "@line": "'${lcf_folder}'"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "@name": "install-files",
+                "attribute": [
+                    {
+                        "@name": "lang",
+                        "@default": "NOT SET"
+                    },
+                    {
+                        "@name": "libname",
+                        "@default": "NOT SET"
+                    }
+                ],
+                "sequential": {
+                    "echo": {
+                        "@message": "Install Files ${library-name}-@{lang}..."
+                    },
+                    "var": [
+                        {
+                            "@name": "lcf_folder",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_name",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_location",
+                            "@unset": "true"
+                        },
+                        {
+                            "@name": "lcf_location",
+                            "@value": "${build.dir}/${target}/${lcf_name}.lcf"
+                        }
+                    ],
+                    "propertyregex": {
+                        "@property": "lcf_name",
+                        "@input": "@{libname}",
+                        "@regexp": " ",
+                        "@replace": "_",
+                        "@global": "true",
+                        "@defaultvalue": "@{libname}"
+                    },
+                    "if": {
+                        "available": {
+                            "@file": "${installerFolder}/content_@{lang}",
+                            "@type": "dir"
+                        },
+                        "then": {
+                            "delete": {
+                                "@dir": "${installerFolder}/content_@{lang}"
+                            }
+                        }
+                    },
+                    "mkdir": {
+                        "@dir": "${installerFolder}/content_@{lang}"
+                    },
+                    "copy": [
+                        {
+                            "@file": "${build.dir}/${target}/${lcf_name}.lcf",
+                            "@todir": "${installerFolder}/content_@{lang}",
+                            "@overwrite": "true"
+                        },
+                        {
+                            "@todir": "${installerFolder}/content_@{lang}",
+                            "@overwrite": "true",
+                            "fileset": {
+                                "@dir": "${build.dir}/${target}/@{lang}/@{libname}",
+                                "@excludes": "${ant.project.name}/**"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@name": "create-log",
+                "sequential": {
+                    "mkdir": [
+                        {
+                            "@dir": "${build.dir}"
+                        },
+                        {
+                            "@dir": "${build.log.dir}"
+                        }
+                    ],
+                    "tstamp": {
+                        "format": {
+                            "@property": "timestamp",
+                            "@pattern": "yyyy-MM-dd_HH-mm-ss"
+                        }
+                    },
+                    "property": [
+                        {
+                            "@name": "build.log.dir",
+                            "@location": "${build.dir}/log"
+                        },
+                        {
+                            "@name": "build.log.filename",
+                            "@value": "build_${timestamp}.log"
+                        }
+                    ],
+                    "record": {
+                        "@name": "${build.log.dir}/${build.log.filename}",
+                        "@loglevel": "verbose",
+                        "@append": "false"
+                    },
+                    "echo": {
+                        "@message": "Build logged to ${build.log.filename}"
+                    }
+                }
+            },
+            {
+                "@name": "create-library-date",
+                "sequential": {
+                    "local": {
+                        "@name": "buildTime"
+                    },
+                    "tstamp": {
+                        "format": {
+                            "@property": "buildTime",
+                            "@pattern": "yyyy.MM.dd"
+                        }
+                    },
+                    "echo": {
+                        "@file": "${buildate}",
+                        "@append": "false",
+                        "#text": "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>\n\t\t\t\t<language>\t\t\n\t\t\t\t\t<str id=\"buildDate\"\tvalue=\"${buildTime}\"></str>\n\t\t\t\t</language>"
+                    }
+                }
+            }
+        ],
+        "target": [
+            {
+                "@name": "init",
+                "echo": "Ant Encoding : ${file.encoding}",
+                "create-log": null,
+                "if": {
+                    "available": {
+                        "@file": "${work.dir}",
+                        "@type": "dir"
+                    },
+                    "then": {
+                        "delete": {
+                            "@dir": "${work.dir}"
+                        }
+                    }
+                },
+                "mkdir": [
+                    {
+                        "@dir": "${work.dir}"
+                    },
+                    {
+                        "@dir": "${gdllib_comp}"
+                    },
+                    {
+                        "@dir": "${gdllib_gsm}"
+                    },
+                    {
+                        "@dir": "${gdllib_loc}"
+                    }
+                ],
+                "create-library-date": null
+            },
+            {
+                "@name": "int",
+                "@depends": "init",
+                "build-lang": {
+                    "@lang": "int",
+                    "@codepage": "UTF8",
+                    "@libname": "${ant.project.name}-int"
+                }
+            },
+            {
+                "@name": "hun",
+                "@depends": "init",
+                "build-lang": {
+                    "@lang": "hun",
+                    "@codepage": "UTF8",
+                    "@libname": "${ant.project.name}-hun"
+                }
+            },
+            {
+                "@name": "slo",
+                "@depends": "init",
+                "build-lang": {
+                    "@lang": "slo",
+                    "@codepage": "UTF8",
+                    "@libname": "${ant.project.name}-slo"
+                }
+            },
+            {
+                "@name": "srb",
+                "@depends": "init",
+                "build-lang": {
+                    "@lang": "srb",
+                    "@codepage": "UTF8",
+                    "@libname": "${ant.project.name}-srb"
+                }
+            },
+            {
+                "@name": "all",
+                "@depends": "int,hun,srb"
+            },
+            {
+                "@name": "debug",
+                "property": [
+                    {
+                        "@name": "debug",
+                        "@value": "true"
+                    },
+                    {
+                        "@name": "target",
+                        "@value": "debug"
+                    }
+                ],
+                "echo": "Set target: ${target}"
+            },
+            {
+                "@name": "release",
+                "property": [
+                    {
+                        "@name": "debug",
+                        "@value": "false"
+                    },
+                    {
+                        "@name": "target",
+                        "@value": "release"
+                    }
+                ],
+                "echo": "Set target: ${target}"
+            },
+            {
+                "@name": "install",
+                "@depends": "release, all",
+                "install-files": [
+                    {
+                        "@lang": "int",
+                        "@libname": "${ant.project.name}-int"
+                    },
+                    {
+                        "@lang": "hun",
+                        "@libname": "${ant.project.name}-hun"
+                    },
+                    {
+                        "@lang": "slo",
+                        "@libname": "${ant.project.name}-slo"
+                    },
+                    {
+                        "@lang": "srb",
+                        "@libname": "${ant.project.name}-srb"
+                    }
+                ]
+            },
+            {
+                "@name": "create-translation",
+                "echo": {
+                    "@message": "Collecting Strings..."
+                },
+                "mkdir": {
+                    "@dir": "${build.dir}"
+                },
+                "check-loc-skip": {
+                    "@lang": "${gdl_base_lang}"
+                },
+                "exec": {
+                    "@executable": "${gdlxmltool}",
+                    "@failonerror": "yes",
+                    "arg": [
+                        {
+                            "@line": "-m collect"
+                        },
+                        {
+                            "@line": "-i ${gdl_dir}"
+                        },
+                        {
+                            "@line": "-p ${build.dir}/${library-name}-${gdl_base_lang}.po"
+                        },
+                        {
+                            "@line": "${depstringloc}"
+                        },
+                        {
+                            "@line": "${depparamloc}"
+                        },
+                        {
+                            "@line": "${depfileloc}"
+                        },
+                        {
+                            "@line": "-d 0"
+                        },
+                        {
+                            "@line": "-v"
+                        },
+                        {
+                            "@line": "-n"
+                        },
+                        {
+                            "@line": "-s"
+                        }
+                    ]
+                }
+            },
+            {
+                "@name": "update-translation",
+                "mkdir": {
+                    "@dir": "${pofiles}"
+                },
+                "update-po": [
+                    {
+                        "@lang": "int"
+                    },
+                    {
+                        "@lang": "hun"
+                    },
+                    {
+                        "@lang": "slo"
+                    },
+                    {
+                        "@lang": "srb"
+                    }
+                ]
+            },
+            {
+                "@name": "clean",
+                "if": {
+                    "available": {
+                        "@file": "${build.dir}",
+                        "@type": "dir"
+                    },
+                    "then": {
+                        "echo": "Cleaning ${build.dir} folder...\"",
+                        "delete": {
+                            "@includeemptydirs": "true",
+                            "fileset": {
+                                "@dir": "${build.dir}",
+                                "@includes": "**/*"
+                            }
+                        }
+                    },
+                    "else": {
+                        "echo": "${build.dir} missing\""
+                    }
+                }
+            },
+            {
+                "@name": "reverse",
+                "@depends": "init",
+                "if": {
+                    "available": {
+                        "@file": "${gdl_reversedir}",
+                        "@type": "dir"
+                    },
+                    "then": {
+                        "delete": {
+                            "@dir": "${gdl_reversedir}"
+                        }
+                    }
+                },
+                "echo": [
+                    {
+                        "@message": "Reverse ${library-name} (LP_XMLConverter)..."
+                    },
+                    {
+                        "@message": "Reverse ${library-name} (gdlXmlTool)..."
+                    }
+                ],
+                "check-loc-skip": {
+                    "@lang": "${gdl_base_lang}"
+                },
+                "exec": [
+                    {
+                        "@executable": "${lpxmlconv}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "l2x"
+                            },
+                            {
+                                "@line": "-l ${gdl_base_codepage}"
+                            },
+                            {
+                                "@line": "${gdl_reversebase}"
+                            },
+                            {
+                                "@line": "${gdl_reversedir}"
+                            }
+                        ]
+                    },
+                    {
+                        "@executable": "${gdlxmltool}",
+                        "@failonerror": "yes",
+                        "arg": [
+                            {
+                                "@line": "-m reverse"
+                            },
+                            {
+                                "@line": "-i ${gdl_reversedir}"
+                            },
+                            {
+                                "@line": "--img ${gdl_imgdir}"
+                            },
+                            {
+                                "@line": "--revimg ${gdl_reverseimg}"
+                            },
+                            {
+                                "@line": "${deplocation}"
+                            },
+                            {
+                                "@line": "${depdatereverse}"
+                            },
+                            {
+                                "@line": "${depgdlversion}"
+                            },
+                            {
+                                "@line": "-n"
+                            },
+                            {
+                                "@line": "-v"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "@name": "check",
+                "@depends": "reverse",
+                "if": {
+                    "available": {
+                        "@file": "${gdl_checker}",
+                        "@type": "dir"
+                    },
+                    "then": {
+                        "delete": {
+                            "@dir": "${gdl_checker}"
+                        }
+                    }
+                },
+                "echo": {
+                    "@message": "Check ${library-name}..."
+                },
+                "exec": {
+                    "@executable": "${gdlxmltool}",
+                    "@failonerror": "yes",
+                    "arg": [
+                        {
+                            "@line": "-m check"
+                        },
+                        {
+                            "@line": "-i ${gdl_reversedir}"
+                        },
+                        {
+                            "@line": "--checkreverse ${gdl_checker}"
+                        },
+                        {
+                            "@line": "--img ${gdl_imgdir}"
+                        },
+                        {
+                            "@line": "--checkui"
+                        },
+                        {
+                            "@line": "--checkmacros"
+                        },
+                        {
+                            "@line": "-n"
+                        },
+                        {
+                            "@line": "-v"
+                        },
+                        {
+                            "@line": "-s"
+                        }
+                    ]
+                }
+            },
+            {
+                "@name": "help",
+                "echo": [
+                    "Available compile options:",
+                    "clean\t\tClean .build folder",
+                    "debug\t\tSet target to Debug mode",
+                    "release\t\tSet target to Release mode",
+                    "int\t\t\tBuild INT language version",
+                    "all\t\t\tBuild ALL language version",
+                    "reverse\t\tReverse",
+                    "install\t\tCopy builded library to your installer folder",
+                    "create-translation\tCreate localizable .PO file",
+                    "update-translation\tUpdate localized .PO files",
+                    null,
+                    "Sample: build release all"
+                ]
+            }
+        ]
+    }
+}
