@@ -10,13 +10,11 @@ import xml.etree.ElementTree as ET
 class XMLDataObject():
     my_data = {}
     my_target = {}
-    print ("sheee")
 
     def __init__(self, xml_path:str) -> None:
 
         self.tree = ET.parse(xml_path)
         self.xml_root = self.tree.getroot()
-        print ("hoo")
 
         self.my_data["basedir"] = "."                   ### TODO
         self.my_data["ant.project.name"] = "Test00"     ### TODO
@@ -26,8 +24,6 @@ class XMLDataObject():
 
         for valami in self.my_data:
             print(valami," ------> ", self.my_data[valami])
-
-
 
         # select the ${...} regex
         replace_all_re = '\$\{.*?\}'
@@ -39,7 +35,6 @@ class XMLDataObject():
     def replace(self, replace_all_re, replace_selection_re):
         compiled_replace_all_re         = re.compile(replace_all_re)
         compiled_replace_selection_re   = re.compile(replace_selection_re)
-        print ("here")
         # Try to replace the regexed values 
         for i_dict in self.my_data:
             replace_dict = compiled_replace_selection_re.findall(self.my_data[i_dict])
@@ -76,29 +71,7 @@ class XMLDataObject():
                     print(f"An exception occurred at: {attrib_value_1}/{attrib_value_2}, ", items.attrib) 
 
             dict_to_add[first_value_name] = first_value
-        print ("DICK:", dict_to_add)
         return dict_to_add
-        
 
-# Make path for directories
-def make_path(XML_data):
-    pass
-    # mycwd = os.getcwd()
-    # path = os.path.join(mycwd,XML_data)
-    # if os.path.exists :
-    #     raise RuntimeError('Directory already exists')
-    # else:
-    #     try:
-    #         os.makedirs(path)
-    #     except OSError:
-    #         print ("Creation of the directory %s failed" % path)
-    #     else:
-    #         print ("Successfully created the directory %s " % path)
-
-# def my_parse ():
-gaa =XMLDataObject('./test_files/build.xml')
-print ("halikhó", XMLDataObject.my_data)
-test_XML = XMLDataObject
-#print (test_XML.my_data["build.dir"])
 
 

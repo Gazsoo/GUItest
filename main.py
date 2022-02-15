@@ -1,23 +1,37 @@
 # Data handling
-import buildParsing         # Paring Module, custom
+
+
+import types
+from matplotlib.pyplot import text
+import buildParsingToJSON         # Paring Module, custom
 import settings_file        # Handle enviroment settings file, custom
 import time
+from appdirs import user_data_dir 
+import pprint
+import json
+from collections import OrderedDict
 
+t = time.process_time()  
 
+APPNAME = "PythonXMLBuilder"
+APPAUTHOR = "EPTAR"
 
-t = time.process_time()    
+appdata_path = user_data_dir(APPNAME, APPAUTHOR)
+print(appdata_path)
 
 def main():
+    XML_file_path = './test_files/build.xml'
     # Paring Module TODO the return value and its structure
-    yyy = buildParsing.XMLDataObject
-    # print (yyy.my_data)
-    # print (yyy.my_target)
+    yyy = buildParsingToJSON.XMLDataObject(XML_file_path, appdata_path)
+    #jsonData = json.dumps(yyy, indent = 3, sort_keys = True)
+    #print ("Key: ",yyy)
 
-    settings_dict = settings_file.start_json_settings()
-    # print (settings_dict)
+    print (yyy.new_dict)
+
+    settings_dict = settings_file.start_json_settings(appdata_path)
 
 
-
+    #print (settings_dict)
 
 
 if __name__ == "__main__":

@@ -2,18 +2,23 @@
 
 import json
 import os
-from appdirs import user_data_dir 
-
-APPNAME = "PythonXMLBuilder"
-APPAUTHOR = "EPTAR"
 SETTINGSFILE = "setting.json"
 
 
-def start_json_settings():
+
+def append_json_settings():
+    pass
+
+def delete_json_settings():
+    pass
+
+def save_json_settings():
+    pass
+
+def start_json_settings(appdata_path):
     # Sample deffault data to save
     settings_dict = {'employees' : [{'name' : 'John Doe','department' : 'Marketing','place' : 'Remote'},{'name' : 'Jane Doe','department' : 'Software Engineering','place' : 'Remote'},{ 'name' : 'Don Joe','department' : 'Software Engineering','place' : 'Office'}]}
 
-    appdata_path = user_data_dir(APPNAME, APPAUTHOR)
     settings_path = os.path.join(appdata_path, SETTINGSFILE)
 
     settings_dict = initiate_json_settings(settings_path, settings_dict, appdata_path)
